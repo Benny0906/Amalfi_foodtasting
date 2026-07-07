@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Hilson 试吃评分 · Tasting Score v2</title>
+<title>Hilson 试吃评分 · Tasting Score v7</title>
 <style>
   :root{
     --navy:#0B2545; --navy2:#13315C; --gold:#C9A24B; --gold-soft:#F0E6CF;
@@ -13,14 +13,15 @@
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   body{margin:0; font-family:'Pretendard','Noto Sans SC','PingFang SC',sans-serif; background:var(--bg); color:var(--ink); font-size:15px;}
   .wrap{max-width:480px; margin:0 auto; padding:16px 16px 90px;}
-  header{background:var(--navy); color:#fff; padding:18px 20px 14px; border-bottom:3px solid var(--gold);}
+  header{background:var(--navy); color:#fff; padding:18px 20px 14px; border-bottom:3px solid var(--gold); position:relative;}
   header h1{margin:0; font-size:18px; letter-spacing:.5px;}
   header .sub{font-size:12px; color:var(--gold); margin-top:3px; letter-spacing:1px;}
+  #langBtn{position:absolute; top:16px; right:16px; border:1.5px solid var(--gold); background:transparent; color:var(--gold); border-radius:18px; padding:6px 14px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;}
   .card{background:var(--card); border-radius:var(--radius); padding:16px; margin:14px 0; box-shadow:0 1px 4px rgba(11,37,69,.08);}
   .card h2{margin:0 0 4px; font-size:16px; color:var(--navy);}
   .card .hint{font-size:12px; color:var(--muted); margin-bottom:12px;}
   label.field{display:block; font-size:13px; font-weight:600; color:var(--navy); margin:14px 0 6px;}
-  input[type=text], textarea{width:100%; border:1.5px solid #E2E0D8; border-radius:10px; padding:10px 12px; font-size:15px; font-family:inherit; background:#fff;}
+  input[type=text], input[type=number], textarea{width:100%; border:1.5px solid #E2E0D8; border-radius:10px; padding:10px 12px; font-size:15px; font-family:inherit; background:#fff;}
   textarea{min-height:64px; resize:vertical;}
   .chips{display:flex; flex-wrap:wrap; gap:8px;}
   .chip{border:1.5px solid #E2E0D8; background:#fff; border-radius:20px; padding:7px 13px; font-size:13px; color:var(--ink); cursor:pointer; user-select:none; transition:all .12s;}
@@ -33,7 +34,6 @@
   .scale button.on.hi{background:var(--gold); border-color:var(--gold); color:var(--navy);}
   .scale-labels{display:flex; justify-content:space-between; font-size:11px; color:var(--muted); margin-top:4px;}
   .seg{display:grid; grid-template-columns:repeat(3,1fr); gap:8px;}
-  .seg.two{grid-template-columns:repeat(2,1fr);}
   .seg button{border:1.5px solid #E2E0D8; background:#fff; border-radius:10px; padding:10px 0; font-size:13.5px; cursor:pointer; color:var(--ink); font-family:inherit;}
   .seg button.on{background:var(--navy); border-color:var(--navy); color:#fff; font-weight:600;}
   .btn{display:block; width:100%; border:none; border-radius:12px; padding:14px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit;}
@@ -45,6 +45,18 @@
   .dishtitle{display:flex; align-items:baseline; justify-content:space-between; margin-top:8px;}
   .dishtitle b{font-size:17px; color:var(--navy);}
   .dishtitle span{font-size:12px; color:var(--muted);}
+  .dishdesc{font-size:12px; color:var(--muted); margin-top:4px; line-height:1.5;}
+  .jumps{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .jp{min-width:34px; height:34px; border-radius:9px; border:1.5px solid #E2E0D8; background:#fff; font-size:13px; font-weight:700; color:var(--ink); cursor:pointer; font-family:inherit;}
+  .jp.done{background:var(--gold-soft); border-color:var(--gold); color:var(--navy);}
+  .jp.cur{background:var(--navy); border-color:var(--navy); color:#fff;}
+  .menulist{background:#fff; border:1.5px solid #E2E0D8; border-radius:12px; margin-top:8px; overflow:hidden;}
+  .menulist button, #sidebar .sb-item{display:flex; width:100%; gap:8px; align-items:baseline; border:none; background:none; text-align:left; padding:10px 12px; font-size:13.5px; color:var(--ink); cursor:pointer; border-bottom:1px solid #F0EDE4; font-family:inherit;}
+  .menulist button:last-child{border-bottom:none;}
+  .menulist button b, #sidebar .sb-item b{color:var(--gold); min-width:22px;}
+  .menulist button .ok, #sidebar .sb-item .ok{margin-left:auto; color:var(--good); font-weight:700;}
+  .menulist button.cur, #sidebar .sb-item.cur{background:var(--gold-soft);}
+  .exitlink{font-size:12px; color:var(--muted); text-decoration:underline; background:none; border:none; cursor:pointer; padding:4px 8px 4px 0; font-family:inherit;}
   .footer-nav{position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid #E8E4D8; padding:10px 16px; display:flex; gap:10px; max-width:480px; margin:0 auto;}
   .footer-nav .btn{padding:12px;}
   .hidden{display:none;}
@@ -52,45 +64,65 @@
   .toast{position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; padding:10px 18px; border-radius:20px; font-size:13px; opacity:0; transition:opacity .3s; pointer-events:none; z-index:99;}
   .toast.show{opacity:1;}
   .setup-note{font-size:12px; color:var(--muted); line-height:1.6;}
-  .must{color:var(--warn);}
+  .backbar{display:flex; align-items:center; gap:6px; margin:2px 0 -4px;}
+  .backbar button{border:none; background:transparent; color:var(--navy); font-size:14px; font-weight:600; cursor:pointer; padding:8px 6px 8px 0; font-family:inherit;}
   .rolebtns{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px;}
   .rolebtns button{border:2px solid var(--navy); background:#fff; border-radius:14px; padding:22px 10px; font-size:15px; font-weight:700; color:var(--navy); cursor:pointer; font-family:inherit;}
   .rolebtns button span{display:block; font-size:11px; font-weight:400; color:var(--muted); margin-top:6px;}
   .rolebtns button.gold{background:var(--gold-soft); border-color:var(--gold);}
-  .backbar{display:flex; align-items:center; gap:6px; margin:2px 0 -4px; }
-  .backbar button{border:none; background:transparent; color:var(--navy); font-size:14px; font-weight:600; cursor:pointer; padding:8px 6px 8px 0; font-family:inherit;}
-  .exitlink{font-size:12px; color:var(--muted); text-decoration:underline; background:none; border:none; cursor:pointer; padding:4px 0; font-family:inherit;}
+  /* ===== 우측 사이드바 (와이드 화면 전용) ===== */
+  #sidebar{display:none;}
+  @media (min-width:900px){
+    #sidebar.active{display:block; position:fixed; top:96px; right:calc(50% - 480px); width:270px;
+      max-height:calc(100vh - 130px); overflow-y:auto; background:#fff;
+      border:1.5px solid #E2E0D8; border-radius:14px; box-shadow:0 1px 4px rgba(11,37,69,.08);}
+    #sidebar h3{margin:0; padding:12px 12px 8px; font-size:13px; color:var(--navy); letter-spacing:.5px; border-bottom:2px solid var(--gold);}
+    .wrap.with-sb{margin:0 auto; transform:translateX(-140px);}
+    .footer-nav.with-sb{transform:translateX(-140px);}
+  }
+  @media (max-width:1100px) and (min-width:900px){
+    #sidebar.active{right:12px;}
+  }
 </style>
 </head>
 <body>
 <header>
   <h1>Hilson 试吃评分</h1>
-  <div class="sub">TASTING SCORECARD · 手机点选，两分钟完成</div>
+  <div class="sub" data-i18n="sub">TASTING SCORECARD · 手机点选，两分钟完成</div>
+  <button id="langBtn" onclick="toggleLang()">EN</button>
 </header>
-<div class="wrap">
 
-  <!-- ============ ROLE SELECT ============ -->
+<!-- 우측 사이드바: 번호+요리명 점프 (900px 이상 화면) -->
+<div id="sidebar">
+  <h3 data-i18n="sb_title">本场菜单 · 点击跳转</h3>
+  <div id="sbList"></div>
+</div>
+
+<div class="wrap" id="wrap">
+
+  <!-- ============ ROLE ============ -->
   <section id="role">
     <div class="card">
-      <h2>请选择你的身份</h2>
-      <div class="hint">主厨/组织者先建菜单 → 生成分享码发到微信群 → 参与者粘贴分享码即可评分，无需输入菜名。</div>
+      <h2 data-i18n="role_title">请选择你的身份</h2>
+      <div class="hint" data-i18n="role_hint">主厨/组织者先建菜单 → 生成分享码发到微信群 → 参与者粘贴分享码即可评分，无需输入菜名。</div>
       <div class="rolebtns">
-        <button class="gold" onclick="show('setup')">👨‍🍳 主厨 / 组织者<span>建立本场菜单</span></button>
-        <button onclick="show('join')">🍽 我是参与者<span>粘贴分享码开始</span></button>
+        <button class="gold" onclick="show('setup')"><span data-i18n="role_org">👨‍🍳 主厨 / 组织者</span><span data-i18n="role_org_sub">建立本场菜单</span></button>
+        <button onclick="show('join')"><span data-i18n="role_join">🍽 我是参与者</span><span data-i18n="role_join_sub">粘贴分享码开始</span></button>
       </div>
     </div>
   </section>
 
-  <!-- ============ ORGANIZER SETUP ============ -->
+  <!-- ============ SETUP (셰프용, 중국어 고정) ============ -->
   <section id="setup" class="hidden">
-    <div class="backbar"><button onclick="show('role')">← 返回</button></div>
+    <div class="backbar"><button onclick="show('role')" data-i18n="back">← 返回</button></div>
     <div class="card">
       <h2>组织者设置</h2>
       <div class="hint">试吃前一天或当天：输入本场信息，生成分享码。</div>
       <label class="field">场次名称</label>
       <input type="text" id="sessionName" placeholder="例：Amalfi Lemon 新菜单 · Gate 1 · 07/04">
-      <label class="field">菜品名单（每行一道，按上菜顺序）</label>
-      <textarea id="dishList" style="min-height:120px" placeholder="味噌西瓜布拉塔&#10;柚子腌渍鰤鱼&#10;沸腾千层面&#10;..."></textarea>
+      <label class="field">菜品名单（⚠ 每道菜之间空一行；一道菜可写多行：第一行菜名，下面几行是配料/中文名说明）</label>
+      <textarea id="dishList" style="min-height:160px" placeholder="MISO BURRATA&#10;miso, umeboshi, tomato tiger's milk&#10;番茄味噌梅子布拉塔&#10;&#10;kombu-cured amberjack carpaccio&#10;昆布渍鰤鱼薄片，新鲜水果&#10;&#10;（↑ 像这样，每道菜之间空一行）" oninput="previewCount()"></textarea>
+      <div class="setup-note" id="dishPreview" style="margin-top:6px; font-weight:600; color:var(--navy);">识别到 0 道菜</div>
       <div style="height:14px"></div>
       <button class="btn primary" onclick="makeCode()">生成分享链接 / 分享码</button>
       <div id="codeBox" class="hidden">
@@ -106,67 +138,69 @@
         <button class="btn ghost" style="margin-top:0" onclick="copyCode()">📋 复制分享码</button>
         <button class="btn ghost" onclick="organizerStart()">我也参加评分 →</button>
       </div>
+      <div style="height:10px"></div>
+      <div class="setup-note">※ 정식 배포 시 미니프로그램/问卷星 이관 예정. 이 화면은 셰프용이라 중국어 고정.</div>
     </div>
   </section>
 
-  <!-- ============ PARTICIPANT JOIN ============ -->
+  <!-- ============ JOIN ============ -->
   <section id="join" class="hidden">
-    <div class="backbar"><button onclick="show('role')">← 返回</button></div>
+    <div class="backbar"><button onclick="show('role')" data-i18n="back">← 返回</button></div>
     <div class="card">
-      <h2>粘贴分享码</h2>
-      <div class="hint">从微信群复制组织者发的分享码，粘贴到下方。菜单会自动加载，你不需要输入任何菜名。</div>
-      <textarea id="joinCode" placeholder="HTS1|..."></textarea>
+      <h2 data-i18n="join_title">粘贴分享码</h2>
+      <div class="hint" data-i18n="join_hint">从微信群复制组织者发的分享码，粘贴到下方。菜单会自动加载，你不需要输入任何菜名。</div>
+      <textarea id="joinCode" placeholder="HTS2|..."></textarea>
       <div style="height:14px"></div>
-      <button class="btn primary" onclick="joinSession()">加载菜单 →</button>
+      <button class="btn primary" onclick="joinSession()" data-i18n="join_btn">加载菜单 →</button>
     </div>
   </section>
 
-  <!-- ============ PARTICIPANT PROFILE ============ -->
+  <!-- ============ PROFILE ============ -->
   <section id="profile" class="hidden">
-    <div class="backbar"><button onclick="backFromProfile()">← 返回</button></div>
+    <div class="backbar"><button onclick="backFromProfile()" data-i18n="back">← 返回</button></div>
     <div class="card">
       <h2 id="sessionTitle">参与者信息</h2>
-      <div class="hint">仅用于菜品数据分析，约30秒完成。<span class="must">*</span> 为必填。</div>
+      <div class="hint" data-i18n="p_hint">仅用于菜品数据分析，约30秒完成。</div>
 
-      <label class="field">昵称 / 名字 <span class="must">*</span></label>
-      <input type="text" id="pName" placeholder="例：Michelle">
+      <label class="field" data-i18n="p_name">昵称 / 名字</label>
+      <input type="text" id="pName" placeholder="例：Michelle" data-ph="p_name_ph">
 
-      <label class="field">性别</label>
+      <label class="field" data-i18n="p_gender">性别</label>
       <div class="seg" id="pGender">
-        <button data-v="女">女</button><button data-v="男">男</button><button data-v="其他">其他/不便透露</button>
+        <button data-v="女" data-en="Female">女</button><button data-v="男" data-en="Male">男</button><button data-v="其他" data-en="Other">其他/不便透露</button>
       </div>
 
-      <label class="field">年龄段</label>
+      <label class="field" data-i18n="p_age">年龄段</label>
       <div class="chips" id="pAge">
         <span class="chip" data-v="18-24">18–24</span><span class="chip" data-v="25-30">25–30</span>
         <span class="chip" data-v="31-35">31–35</span><span class="chip" data-v="36-45">36–45</span>
         <span class="chip" data-v="46+">46+</span>
       </div>
 
-      <label class="field">平时喜欢的菜系（可多选）</label>
+      <label class="field" data-i18n="p_cuisine">平时喜欢的菜系（可多选）</label>
       <div class="chips" id="pCuisine">
-        <span class="chip" data-v="日料-寿司/刺身">日料 · 寿司/刺身</span>
-        <span class="chip" data-v="日料-烧鸟/居酒屋">日料 · 烧鸟/居酒屋</span>
-        <span class="chip" data-v="西餐-意面/披萨">西餐 · 意面/披萨</span>
-        <span class="chip" data-v="西餐-汉堡/美式">西餐 · 汉堡/美式</span>
-        <span class="chip" data-v="西餐-西班牙/地中海">西餐 · 西班牙/地中海</span>
-        <span class="chip" data-v="韩餐">韩餐</span>
-        <span class="chip" data-v="东南亚">东南亚</span>
-        <span class="chip" data-v="本帮/江浙">本帮/江浙菜</span>
-        <span class="chip" data-v="川湘">川湘菜</span>
-        <span class="chip" data-v="粤菜">粤菜</span>
-        <span class="chip" data-v="云南菜">云南菜</span>
-        <span class="chip" data-v="甜品/咖啡">甜品/咖啡</span>
-        <span class="chip" data-v="__other" id="cuisineOtherChip">其他 ✎</span>
+        <span class="chip" data-v="日料-寿司/刺身" data-en="Japanese · Sushi/Sashimi">日料 · 寿司/刺身</span>
+        <span class="chip" data-v="日料-烧鸟/居酒屋" data-en="Japanese · Yakitori/Izakaya">日料 · 烧鸟/居酒屋</span>
+        <span class="chip" data-v="西餐-意面/披萨" data-en="Western · Pasta/Pizza">西餐 · 意面/披萨</span>
+        <span class="chip" data-v="西餐-汉堡/美式" data-en="Western · Burger/American">西餐 · 汉堡/美式</span>
+        <span class="chip" data-v="西餐-西班牙/地中海" data-en="Western · Spanish/Mediterranean">西餐 · 西班牙/地中海</span>
+        <span class="chip" data-v="韩餐" data-en="Korean">韩餐</span>
+        <span class="chip" data-v="东南亚" data-en="Southeast Asian">东南亚</span>
+        <span class="chip" data-v="本帮/江浙" data-en="Shanghainese/Jiangzhe">本帮/江浙菜</span>
+        <span class="chip" data-v="川湘" data-en="Sichuan/Hunan">川湘菜</span>
+        <span class="chip" data-v="粤菜" data-en="Cantonese">粤菜</span>
+        <span class="chip" data-v="云南菜" data-en="Yunnan">云南菜</span>
+        <span class="chip" data-v="甜品/咖啡" data-en="Dessert/Coffee">甜品/咖啡</span>
+        <span class="chip" data-v="__other" id="cuisineOtherChip" data-en="Other ✎">其他 ✎</span>
       </div>
-      <input type="text" id="pCuisineOther" class="other-input hidden" placeholder="请输入其他菜系，例：中东菜、素食…">
+      <input type="text" id="pCuisineOther" class="other-input hidden" placeholder="请输入其他菜系，例：中东菜、素食…" data-ph="p_cuisine_ph">
 
-      <label class="field">平均每周外出就餐次数</label>
+      <label class="field" data-i18n="p_freq">平均每周外出就餐次数</label>
       <div class="seg" id="pFreq">
-        <button data-v="≤1次/周">≤1次</button><button data-v="2-4次/周">2–4次</button><button data-v="5次以上/周">5次+</button>
+        <button data-v="≤1次/周" data-en="≤1 /wk">≤1次</button><button data-v="2-4次/周" data-en="2–4 /wk">2–4次</button><button data-v="5次以上/周" data-en="5+ /wk">5次+</button>
       </div>
 
-      <label class="field">外出就餐人均消费（午/晚正餐，RMB）</label>
+      <label class="field" data-i18n="p_spend">外出就餐人均消费（午/晚正餐，RMB）</label>
       <div class="chips" id="pSpend">
         <span class="chip" data-v="<80">&lt;80</span><span class="chip" data-v="80-150">80–150</span>
         <span class="chip" data-v="150-250">150–250</span><span class="chip" data-v="250-400">250–400</span>
@@ -174,7 +208,7 @@
       </div>
 
       <div style="height:18px"></div>
-      <button class="btn primary" onclick="startScoring()">开始试吃评分 →</button>
+      <button class="btn primary" id="startBtn" onclick="startScoring()" data-i18n="start_btn">开始试吃评分 →</button>
     </div>
   </section>
 
@@ -183,64 +217,71 @@
     <div class="dishnav">
       <div class="progress"><i id="prog"></i></div>
       <div class="dishtitle"><b id="dishName">—</b><span id="dishCount">1 / 1</span></div>
-      <button class="exitlink" onclick="exitScoring()">← 退出评分（返回个人信息）</button>
+      <div class="dishdesc" id="dishDesc"></div>
+      <div class="jumps" id="jumps"></div>
+      <button class="exitlink" onclick="toggleMenuList()" data-i18n="menu_toggle">☰ 查看完整菜单（点菜名可跳转）</button><button class="exitlink" onclick="exitScoring()" data-i18n="exit_link">← 退出评分</button>
+      <div id="menuList" class="menulist hidden"></div>
     </div>
 
     <div class="card">
-      <h2>味道 Taste <span class="must">*</span></h2>
+      <h2 data-i18n="taste_title">味道 Taste</h2>
       <div class="scale" id="sTaste"></div>
-      <div class="scale-labels"><span>1 很差</span><span>5 一般</span><span>9 极好</span></div>
+      <div class="scale-labels"><span data-i18n="sc_lo">1 很差</span><span data-i18n="sc_mid">5 一般</span><span data-i18n="sc_hi">9 极好</span></div>
     </div>
 
     <div class="card">
-      <h2>颜值 / 摆盘 Visual <span class="must">*</span></h2>
+      <h2 data-i18n="visual_title">颜值 / 摆盘 Visual</h2>
       <div class="scale" id="sVisual"></div>
-      <div class="scale-labels"><span>1 很差</span><span>5 一般</span><span>9 极好</span></div>
+      <div class="scale-labels"><span data-i18n="sc_lo2">1 很差</span><span data-i18n="sc_mid2">5 一般</span><span data-i18n="sc_hi2">9 极好</span></div>
     </div>
 
     <div class="card">
-      <h2>你会主动再点这道菜吗？ <span class="must">*</span></h2>
+      <h2 data-i18n="reorder_title">你会主动再点这道菜吗？</h2>
       <div class="seg" id="sReorder">
-        <button data-v="会">会 ✓</button><button data-v="可能">可能</button><button data-v="不会">不会</button>
+        <button data-v="会" data-en="Yes ✓">会 ✓</button><button data-v="可能" data-en="Maybe">可能</button><button data-v="不会" data-en="No">不会</button>
       </div>
     </div>
 
     <div class="card">
-      <h2>问题标签（可多选）</h2>
-      <div class="hint">觉得没问题可以不选。</div>
+      <h2 data-i18n="issues_title">问题标签（可多选）</h2>
+      <div class="hint" data-i18n="issues_hint">觉得没问题可以不选。</div>
       <div class="chips" id="sIssues">
-        <span class="chip" data-v="太咸">太咸</span><span class="chip" data-v="太淡">太淡</span>
-        <span class="chip" data-v="太甜">太甜</span><span class="chip" data-v="太腻">太腻</span>
-        <span class="chip" data-v="酸度过高">酸度过高</span>
-        <span class="chip" data-v="份量太大">份量太大</span><span class="chip" data-v="份量太小">份量太小</span>
-        <span class="chip" data-v="摆盘需改进">摆盘需改进</span><span class="chip" data-v="器皿不合适">器皿不合适</span>
-        <span class="chip" data-v="温度不对">温度不对</span><span class="chip" data-v="口感/质地问题">口感/质地问题</span>
-        <span class="chip" data-v="主料存在感弱">主料存在感弱</span><span class="chip" data-v="酱汁需调整">酱汁需调整</span>
-        <span class="chip" data-v="性价比感低">性价比感低</span><span class="chip" data-v="不符合品牌风格">不符合品牌风格</span>
-        <span class="chip" data-v="__other" id="issueOtherChip">其他 ✎</span>
+        <span class="chip" data-v="太咸" data-en="Too salty">太咸</span><span class="chip" data-v="太淡" data-en="Too bland">太淡</span>
+        <span class="chip" data-v="太甜" data-en="Too sweet">太甜</span><span class="chip" data-v="太腻" data-en="Too heavy/greasy">太腻</span>
+        <span class="chip" data-v="酸度过高" data-en="Too acidic">酸度过高</span>
+        <span class="chip" data-v="份量太大" data-en="Portion too big">份量太大</span><span class="chip" data-v="份量太小" data-en="Portion too small">份量太小</span>
+        <span class="chip" data-v="摆盘需改进" data-en="Plating needs work">摆盘需改进</span><span class="chip" data-v="器皿不合适" data-en="Wrong serviceware">器皿不合适</span>
+        <span class="chip" data-v="温度不对" data-en="Wrong temperature">温度不对</span><span class="chip" data-v="口感/质地问题" data-en="Texture issue">口感/质地问题</span>
+        <span class="chip" data-v="主料存在感弱" data-en="Weak main ingredient">主料存在感弱</span><span class="chip" data-v="酱汁需调整" data-en="Sauce needs adjusting">酱汁需调整</span>
+        <span class="chip" data-v="性价比感低" data-en="Poor value">性价比感低</span><span class="chip" data-v="不符合品牌风格" data-en="Off-brand">不符合品牌风格</span>
+        <span class="chip" data-v="__other" id="issueOtherChip" data-en="Other ✎">其他 ✎</span>
       </div>
-      <input type="text" id="sIssueOther" class="other-input hidden" placeholder="请输入其他问题…">
+      <input type="text" id="sIssueOther" class="other-input hidden" placeholder="请输入其他问题…" data-ph="issue_ph">
 
-      <label class="field">合理价位（这道菜你愿意付多少 RMB？选一个）</label>
+      <label class="field" data-i18n="price_title">合理价位（这道菜你愿意付多少 RMB？选一个）</label>
       <div class="chips" id="sPrice">
         <span class="chip gold" data-v="<40">&lt;40</span><span class="chip gold" data-v="40-60">40–60</span>
         <span class="chip gold" data-v="60-90">60–90</span><span class="chip gold" data-v="90-130">90–130</span>
         <span class="chip gold" data-v="130+">130+</span>
+        <span class="chip gold" data-v="__other" id="priceOtherChip" data-en="Other ✎">其他 ✎</span>
       </div>
-      <label class="field">补充评论（可选）</label>
-      <textarea id="sComment" placeholder="任何想法都可以写…"></textarea>
+      <input type="number" inputmode="numeric" id="sPriceOther" class="other-input hidden" placeholder="输入你认为合理的价格（RMB，纯数字）" data-ph="price_ph" min="1" style="border:1.5px solid var(--gold);">
+
+      <label class="field" data-i18n="comment_title">补充评论（可选）</label>
+      <textarea id="sComment" placeholder="任何想法都可以写…" data-ph="comment_ph"></textarea>
     </div>
   </section>
 
   <!-- ============ RESULT ============ -->
   <section id="result" class="hidden">
     <div class="card">
-      <h2>完成！复制结果发到微信群</h2>
-      <div class="hint">点下方按钮复制 → 粘贴到试吃微信群即可。</div>
+      <h2 data-i18n="result_title">完成！复制结果发到微信群</h2>
+      <div class="hint" data-i18n="result_hint">点下方按钮复制 → 粘贴到试吃微信群即可。</div>
       <pre class="result" id="resultText"></pre>
       <div style="height:12px"></div>
-      <button class="btn primary" onclick="copyResult()">📋 复制结果</button>
-      <button class="btn ghost" onclick="location.reload()">重新开始</button>
+      <button class="btn primary" onclick="copyResult()" data-i18n="copy_btn">📋 复制结果</button>
+      <button class="btn ghost" onclick="backToScoring()" data-i18n="back_edit">← 返回修改评分</button>
+      <button class="btn ghost" onclick="location.reload()" data-i18n="restart">重新开始</button>
     </div>
   </section>
 </div>
@@ -252,26 +293,166 @@
 <div class="toast" id="toast">已复制 ✓</div>
 
 <script>
-let state = { session:'', dishes:[], profile:{}, scores:[], idx:0 };
+let state = { session:'', dishes:[], profile:{}, scores:[], idx:0, lang:'zh', btnMode:'start' };
 
+/* ================= i18n ================= */
+const I18N = {
+  sub:      {zh:'TASTING SCORECARD · 手机点选，两分钟完成', en:'TASTING SCORECARD · Tap to score · ~2 min'},
+  sb_title: {zh:'本场菜单 · 点击跳转', en:'MENU · tap to jump'},
+  back:     {zh:'← 返回', en:'← Back'},
+  role_title:{zh:'请选择你的身份', en:'Choose your role'},
+  role_hint:{zh:'主厨/组织者先建菜单 → 生成分享码发到微信群 → 参与者粘贴分享码即可评分，无需输入菜名。', en:'Chef/organizer creates the menu → shares a code/link in WeChat → participants just tap and score. No typing dish names.'},
+  role_org: {zh:'👨‍🍳 主厨 / 组织者', en:'👨‍🍳 Chef / Organizer'},
+  role_org_sub:{zh:'建立本场菜单', en:'Create tasting menu'},
+  role_join:{zh:'🍽 我是参与者', en:'🍽 I\'m a participant'},
+  role_join_sub:{zh:'粘贴分享码开始', en:'Paste share code to start'},
+  join_title:{zh:'粘贴分享码', en:'Paste share code'},
+  join_hint:{zh:'从微信群复制组织者发的分享码，粘贴到下方。菜单会自动加载，你不需要输入任何菜名。', en:'Copy the share code from the WeChat group and paste it below. The menu loads automatically — no typing needed.'},
+  join_btn: {zh:'加载菜单 →', en:'Load menu →'},
+  p_suffix: {zh:'参与者信息', en:'Participant info'},
+  p_hint:   {zh:'仅用于菜品数据分析，约30秒完成。', en:'Used only for dish analytics. ~30 seconds.'},
+  p_name:   {zh:'昵称 / 名字', en:'Name / nickname'},
+  p_name_ph:{zh:'例：Michelle', en:'e.g. Michelle'},
+  p_gender: {zh:'性别', en:'Gender'},
+  p_age:    {zh:'年龄段', en:'Age group'},
+  p_cuisine:{zh:'平时喜欢的菜系（可多选）', en:'Favorite cuisines (multi-select)'},
+  p_cuisine_ph:{zh:'请输入其他菜系，例：中东菜、素食…', en:'Other cuisine, e.g. Middle Eastern, vegan…'},
+  p_freq:   {zh:'平均每周外出就餐次数', en:'Dining out per week'},
+  p_spend:  {zh:'外出就餐人均消费（午/晚正餐，RMB）', en:'Avg spend per person (lunch/dinner, RMB)'},
+  start_btn:{zh:'开始试吃评分 →', en:'Start scoring →'},
+  cont_btn: {zh:'继续评分 →', en:'Continue scoring →'},
+  taste_title:{zh:'味道 Taste', en:'Taste'},
+  visual_title:{zh:'颜值 / 摆盘 Visual', en:'Visual / Plating'},
+  sc_lo:{zh:'1 很差', en:'1 Poor'}, sc_mid:{zh:'5 一般', en:'5 OK'}, sc_hi:{zh:'9 极好', en:'9 Excellent'},
+  sc_lo2:{zh:'1 很差', en:'1 Poor'}, sc_mid2:{zh:'5 一般', en:'5 OK'}, sc_hi2:{zh:'9 极好', en:'9 Excellent'},
+  reorder_title:{zh:'你会主动再点这道菜吗？', en:'Would you order this again?'},
+  issues_title:{zh:'问题标签（可多选）', en:'Issue tags (multi-select)'},
+  issues_hint:{zh:'觉得没问题可以不选。', en:'Skip if nothing is wrong.'},
+  issue_ph: {zh:'请输入其他问题…', en:'Type other issue…'},
+  price_title:{zh:'合理价位（这道菜你愿意付多少 RMB？选一个）', en:'Fair price — what would you pay (RMB)? Pick one'},
+  price_ph: {zh:'输入你认为合理的价格（RMB，纯数字）', en:'Enter a fair price (RMB, number only)'},
+  comment_title:{zh:'补充评论（可选）', en:'Comments (optional)'},
+  comment_ph:{zh:'任何想法都可以写…', en:'Anything on your mind…'},
+  menu_toggle:{zh:'☰ 查看完整菜单（点菜名可跳转）', en:'☰ Full menu (tap a dish to jump)'},
+  exit_link:{zh:'← 退出评分', en:'← Exit scoring'},
+  prev:     {zh:'← 上一道', en:'← Previous'},
+  prev_prof:{zh:'← 个人信息', en:'← My info'},
+  next:     {zh:'下一道 →', en:'Next →'},
+  done:     {zh:'完成 ✓', en:'Finish ✓'},
+  result_title:{zh:'完成！复制结果发到微信群', en:'Done! Copy your results to WeChat'},
+  result_hint:{zh:'点下方按钮复制 → 粘贴到试吃微信群即可。', en:'Tap copy below → paste into the tasting WeChat group.'},
+  copy_btn: {zh:'📋 复制结果', en:'📋 Copy results'},
+  back_edit:{zh:'← 返回修改评分', en:'← Back to edit scores'},
+  restart:  {zh:'重新开始', en:'Restart'},
+  exit_confirm:{zh:'退出评分？已填写的菜品分数会保留，可稍后继续。', en:'Exit scoring? Your scores are saved — you can continue later.'},
+  toast_copied:{zh:'已复制 ✓', en:'Copied ✓'}
+};
+function t(k){ return (I18N[k]&&I18N[k][state.lang])||I18N[k]?.zh||k; }
+function toggleLang(){
+  state.lang = state.lang==='zh' ? 'en' : 'zh';
+  document.getElementById('langBtn').textContent = state.lang==='zh' ? 'EN' : '中';
+  applyLang();
+}
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.dataset.i18n); });
+  document.querySelectorAll('[data-ph]').forEach(el=>{ el.placeholder=t(el.dataset.ph); });
+  // 칩/세그 버튼: data-v(저장값)는 불변, 표시 텍스트만 전환
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    if(!el.dataset.zh) el.dataset.zh=el.textContent;
+    el.textContent = state.lang==='en' ? el.dataset.en : el.dataset.zh;
+  });
+  // 동적 요소들
+  if(state.session){
+    document.getElementById('sessionTitle').textContent='【'+state.session+'】'+t('p_suffix');
+  }
+  document.getElementById('startBtn').textContent = t(state.btnMode==='start'?'start_btn':'cont_btn');
+  if(!document.getElementById('scoring').classList.contains('hidden')) renderDish();
+}
+
+/* ================= 화면 전환 ================= */
 function show(id){
   ['role','setup','join','profile','scoring','result'].forEach(s=>document.getElementById(s).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
+  // 사이드바는 채점 화면에서만
+  const sb=document.getElementById('sidebar');
+  const on = (id==='scoring');
+  sb.classList.toggle('active', on);
+  document.getElementById('wrap').classList.toggle('with-sb', on);
+  document.getElementById('footNav').classList.toggle('with-sb', on);
   window.scrollTo(0,0);
 }
 
-/* ---------- share code ---------- */
+/* ================= 공유코드 ================= */
 function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
 function b64d(s){ return decodeURIComponent(escape(atob(s))); }
 
+/* 줄의 주 언어 판별 */
+function scriptOf(line){
+  const latin=(line.match(/[A-Za-z]/g)||[]).length;
+  const cjk=(line.match(/[\u4e00-\u9fff\u3040-\u30ff]/g)||[]).length;
+  return cjk>latin?'zh':'en';
+}
+/* 요리 객체 생성: n=대표명(첫 줄), ne=영문명, nz=중문명, e=설명 */
+function mkDish(lines){
+  const d={ n:lines[0], e:lines.slice(1).join(' · ') };
+  const enL=lines.find(l=>scriptOf(l)==='en');
+  const zhL=lines.find(l=>scriptOf(l)==='zh');
+  if(enL) d.ne=enL;
+  if(zhL) d.nz=zhL;
+  return d;
+}
+function parseDishes(text){
+  const hasBlank=/\n\s*\n/.test(text.trim());
+  if(hasBlank){
+    return text.split(/\n\s*\n/).map(b=>b.trim()).filter(Boolean)
+      .map(b=>mkDish(b.split('\n').map(l=>l.trim()).filter(Boolean)));
+  }
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const scripts=lines.map(scriptOf);
+  const hasEn=scripts.includes('en'), hasZh=scripts.includes('zh');
+  // 빈 줄 없음 + 두 언어 혼재 = 이중언어 메뉴로 판단.
+  // 첫 줄의 언어를 "요리명 언어"로 잡고, 그 언어의 줄마다 새 요리 시작,
+  // 반대 언어 줄은 직전 요리의 번역/설명으로 붙임. (교차가 불규칙해도, 홀수 줄이어도 작동)
+  if(hasEn && hasZh){
+    const nameScript=scripts[0];
+    const groups=[];
+    lines.forEach((l,i)=>{
+      if(scripts[i]===nameScript || groups.length===0){
+        if(scripts[i]===nameScript) groups.push([l]);
+        else groups.push([l]); // 첫 줄이 반대 언어인 극단 케이스 방어
+      } else {
+        groups[groups.length-1].push(l);
+      }
+    });
+    return groups.map(g=>mkDish(g));
+  }
+  // 단일 언어 메뉴: 1줄 = 1요리
+  return lines.map(l=>mkDish([l]));
+}
+/* 현재 언어에 맞는 표시명/설명 선택 */
+function dishDisp(dish){
+  const name = state.lang==='en' ? (dish.ne||dish.n) : (dish.nz||dish.n);
+  const parts=[];
+  if(dish.ne && dish.ne!==name) parts.push(dish.ne);
+  if(dish.nz && dish.nz!==name) parts.push(dish.nz);
+  if(dish.e){ dish.e.split(' · ').forEach(x=>{ if(x && x!==name && !parts.includes(x)) parts.push(x); }); }
+  return { name, desc: parts.join(' · ') };
+}
+function previewCount(){
+  const el=document.getElementById('dishPreview');
+  if(!el) return;
+  const d=parseDishes(document.getElementById('dishList').value);
+  if(!d.length){ el.textContent='识别到 0 道菜'; return; }
+  el.innerHTML='识别到 <b style="color:var(--gold)">'+d.length+'</b> 道菜（请确认数量正确！）<br>'+
+    d.map((x,i)=>(i+1)+'. '+x.n+(x.nz&&x.nz!==x.n?' <span style="color:var(--muted)">/ '+x.nz+'</span>':'')).join('<br>');
+}
 function makeCode(){
-  const dishes=document.getElementById('dishList').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  const dishes=parseDishes(document.getElementById('dishList').value);
   const name=document.getElementById('sessionName').value.trim();
   if(!name||!dishes.length){ alert('请填写场次名称和菜品名单'); return; }
   state.session=name; state.dishes=dishes; state.scores=dishes.map(()=>null);
-  const code='HTS1|'+b64e(JSON.stringify({s:name,d:dishes}));
+  const code='HTS2|'+b64e(JSON.stringify({s:name,d:dishes}));
   document.getElementById('codeText').textContent=code;
-  // 호스팅된 URL에서 열렸으면 원터치 분享链接 생성 (file:// 로컬 파일이면 코드만)
   if(location.protocol==='http:'||location.protocol==='https:'){
     const link=location.href.split('#')[0]+'#'+encodeURIComponent(code);
     document.getElementById('linkText').textContent=link;
@@ -281,46 +462,39 @@ function makeCode(){
 }
 function copyCode(){ copyText(document.getElementById('codeText').textContent); }
 function copyLink(){ copyText(document.getElementById('linkText').textContent); }
-function organizerStart(){ document.getElementById('sessionTitle').textContent='【'+state.session+'】参与者信息'; show('profile'); }
+function organizerStart(){ state.btnMode='start'; document.getElementById('sessionTitle').textContent='【'+state.session+'】'+t('p_suffix'); show('profile'); }
 
-/* 분享链接으로 진입 시 세션 자동 로드 (참가자는 코드 붙여넣기조차 불필요) */
-window.addEventListener('load',()=>{
-  const h=decodeURIComponent(location.hash.slice(1)||'');
-  if(h.startsWith('HTS1|')){
-    try{
-      const obj=JSON.parse(b64d(h.slice(5)));
-      state.session=obj.s; state.dishes=obj.d; state.scores=obj.d.map(()=>null);
-      document.getElementById('sessionTitle').textContent='【'+state.session+'】参与者信息';
-      show('profile');
-    }catch(e){}
-  }
-});
-
-/* 뒤로가기 */
-function backFromProfile(){
-  // 링크로 진입한 참가자는 role 화면이 의미 없으므로 join으로, 그 외엔 role로
-  if(state.dishes.length && !document.getElementById('dishList').value.trim()){ show('join'); }
-  else { show('role'); }
+function parseShareCode(raw){
+  let ver=null;
+  if(raw.startsWith('HTS2|')) ver=2; else if(raw.startsWith('HTS1|')) ver=1;
+  if(!ver) return null;
+  const obj=JSON.parse(b64d(raw.slice(5)));
+  const dishes=ver===2 ? obj.d : obj.d.map(x=>({n:x,e:''}));
+  return {s:obj.s, d:dishes};
 }
-function exitScoring(){
-  if(confirm('退出评分？已填写的菜品分数会保留，可稍后继续。')){
-    document.getElementById('footNav').classList.add('hidden');
-    show('profile');
-  }
-}
-
 function joinSession(){
   const raw=document.getElementById('joinCode').value.trim();
-  if(!raw.startsWith('HTS1|')){ alert('分享码格式不对，请重新复制'); return; }
   try{
-    const obj=JSON.parse(b64d(raw.slice(5)));
-    state.session=obj.s; state.dishes=obj.d; state.scores=obj.d.map(()=>null);
-    document.getElementById('sessionTitle').textContent='【'+state.session+'】参与者信息';
+    const p=parseShareCode(raw);
+    if(!p){ alert(state.lang==='en'?'Invalid share code — please re-copy.':'分享码格式不对，请重新复制'); return; }
+    state.session=p.s; state.dishes=p.d; state.scores=p.d.map(()=>null);
+    document.getElementById('sessionTitle').textContent='【'+state.session+'】'+t('p_suffix');
     show('profile');
-  }catch(e){ alert('分享码无法解析，请确认复制完整'); }
+  }catch(e){ alert(state.lang==='en'?'Could not parse code — copy it fully.':'分享码无法解析，请确认复制完整'); }
 }
+window.addEventListener('load',()=>{
+  const h=decodeURIComponent(location.hash.slice(1)||'');
+  try{
+    const p=parseShareCode(h);
+    if(p){
+      state.session=p.s; state.dishes=p.d; state.scores=p.d.map(()=>null);
+      document.getElementById('sessionTitle').textContent='【'+state.session+'】'+t('p_suffix');
+      show('profile');
+    }
+  }catch(e){}
+});
 
-/* ---------- widgets ---------- */
+/* ================= 위젯 ================= */
 function buildScale(el){
   el.innerHTML='';
   for(let i=1;i<=9;i++){
@@ -336,10 +510,11 @@ function buildScale(el){
 function segInit(el){ [...el.children].forEach(b=>b.onclick=()=>{ [...el.children].forEach(c=>c.classList.remove('on')); b.classList.add('on'); el.dataset.val=b.dataset.v; }); }
 function chipsInit(el,single=false,otherInputId=null){
   [...el.children].forEach(c=>c.onclick=()=>{
-    if(single){[...el.children].forEach(x=>x.classList.remove('on'));}
+    if(single){[...el.children].forEach(x=>{ if(x!==c) x.classList.remove('on'); });}
     c.classList.toggle('on');
-    if(otherInputId && c.dataset.v==='__other'){
-      document.getElementById(otherInputId).classList.toggle('hidden', !c.classList.contains('on'));
+    if(otherInputId){
+      const oc=[...el.children].find(x=>x.dataset.v==='__other');
+      document.getElementById(otherInputId).classList.toggle('hidden', !(oc&&oc.classList.contains('on')));
     }
   });
 }
@@ -351,15 +526,15 @@ chipsInit(document.getElementById('pAge'),true);
 chipsInit(document.getElementById('pCuisine'),false,'pCuisineOther');
 chipsInit(document.getElementById('pSpend'),true);
 chipsInit(document.getElementById('sIssues'),false,'sIssueOther');
-chipsInit(document.getElementById('sPrice'),true);
+chipsInit(document.getElementById('sPrice'),true,'sPriceOther');
 segInit(document.getElementById('sReorder'));
 buildScale(document.getElementById('sTaste'));
 buildScale(document.getElementById('sVisual'));
 
-/* ---------- flow ---------- */
+/* ================= 플로우 ================= */
 function startScoring(){
   const name=document.getElementById('pName').value.trim();
-  if(!name){ alert('请填写昵称'); return; }
+  if(!name){ alert(state.lang==='en'?'Please enter your name.':'请填写昵称'); return; }
   let cuisine=chipVals(document.getElementById('pCuisine'));
   const cOther=document.getElementById('pCuisineOther').value.trim();
   if(cOther) cuisine.push('其他:'+cOther);
@@ -372,27 +547,49 @@ function startScoring(){
   };
   show('scoring');
   document.getElementById('footNav').classList.remove('hidden');
-  // 중도 이탈 후 재진입 시: 마지막 미완성 요리부터 이어서
   const firstEmpty=state.scores.findIndex(s=>s===null);
   state.idx=firstEmpty===-1?state.scores.length-1:firstEmpty;
   renderDish();
 }
+function backFromProfile(){
+  if(state.dishes.length && !document.getElementById('dishList').value.trim()){ show('join'); }
+  else { show('role'); }
+}
+function exitScoring(){
+  if(confirm(t('exit_confirm'))){
+    document.getElementById('footNav').classList.add('hidden');
+    state.btnMode='cont';
+    document.getElementById('startBtn').textContent=t('cont_btn');
+    show('profile');
+  }
+}
+function backToScoring(){
+  show('scoring');
+  document.getElementById('footNav').classList.remove('hidden');
+  state.idx=state.dishes.length-1;
+  renderDish();
+}
 
 function renderDish(){
-  const i=state.idx, d=state.scores[i];
-  document.getElementById('dishName').textContent=(i+1)+'. '+state.dishes[i];
+  const i=state.idx, d=state.scores[i], dish=state.dishes[i];
+  const disp=dishDisp(dish);
+  document.getElementById('dishName').textContent=(i+1)+'. '+disp.name;
+  document.getElementById('dishDesc').textContent=disp.desc||'';
   document.getElementById('dishCount').textContent=(i+1)+' / '+state.dishes.length;
   document.getElementById('prog').style.width=((i)/state.dishes.length*100)+'%';
+  renderJumps(); renderMenuList(); renderSidebar();
   buildScale(document.getElementById('sTaste'));
   buildScale(document.getElementById('sVisual'));
   [...document.getElementById('sReorder').children].forEach(b=>b.classList.remove('on'));
   delete document.getElementById('sReorder').dataset.val;
   [...document.getElementById('sIssues').children].forEach(c=>c.classList.remove('on'));
   [...document.getElementById('sPrice').children].forEach(c=>c.classList.remove('on'));
+  document.getElementById('sPriceOther').value=''; document.getElementById('sPriceOther').classList.add('hidden');
   document.getElementById('sIssueOther').value=''; document.getElementById('sIssueOther').classList.add('hidden');
   document.getElementById('sComment').value='';
   if(d){
-    setScale('sTaste',d.taste); setScale('sVisual',d.visual);
+    if(d.taste) setScale('sTaste',d.taste);
+    if(d.visual) setScale('sVisual',d.visual);
     if(d.reorder){[...document.getElementById('sReorder').children].forEach(b=>{if(b.dataset.v===d.reorder){b.classList.add('on');document.getElementById('sReorder').dataset.val=d.reorder;}});}
     d.issues.forEach(v=>{
       if(v.startsWith('其他:')){
@@ -402,45 +599,111 @@ function renderDish(){
         [...document.getElementById('sIssues').children].forEach(c=>{if(c.dataset.v===v)c.classList.add('on');});
       }
     });
-    if(d.price){[...document.getElementById('sPrice').children].forEach(c=>{if(c.dataset.v===d.price)c.classList.add('on');});}
+    if(d.price){
+      if(d.price.startsWith('¥')){
+        document.getElementById('priceOtherChip').classList.add('on');
+        const pi=document.getElementById('sPriceOther'); pi.classList.remove('hidden'); pi.value=d.price.slice(1);
+      } else {
+        [...document.getElementById('sPrice').children].forEach(c=>{if(c.dataset.v===d.price)c.classList.add('on');});
+      }
+    }
     document.getElementById('sComment').value=d.comment||'';
   }
-  document.getElementById('btnPrev').style.visibility=i===0?'hidden':'visible';
-  document.getElementById('btnNext').textContent=(i===state.dishes.length-1)?'完成 ✓':'下一道 →';
+  document.getElementById('btnPrev').style.visibility='visible';
+  document.getElementById('btnPrev').textContent = i===0 ? t('prev_prof') : t('prev');
+  document.getElementById('btnNext').textContent = (i===state.dishes.length-1) ? t('done') : t('next');
   window.scrollTo(0,0);
 }
 function setScale(id,val){ const el=document.getElementById(id); if(!val)return;
   [...el.children].forEach(b=>{ if(+b.textContent===val){ b.classList.add('on'); if(val>=8)b.classList.add('hi'); el.dataset.val=val; } }); }
 
+/* ---- 점프 내비게이션 ---- */
+function scored(i){ const s=state.scores[i]; return s&&(s.taste||s.visual||s.reorder); }
+function jumpTo(i){
+  if(i===state.idx) return;
+  saveCurrent();
+  state.idx=i; renderDish();
+}
+function renderJumps(){
+  const box=document.getElementById('jumps'); box.innerHTML='';
+  state.dishes.forEach((dish,i)=>{
+    const b=document.createElement('button');
+    b.className='jp'+(i===state.idx?' cur':(scored(i)?' done':''));
+    b.textContent=i+1; b.title=dishDisp(dish).name;
+    b.onclick=()=>jumpTo(i);
+    box.appendChild(b);
+  });
+}
+function toggleMenuList(){ document.getElementById('menuList').classList.toggle('hidden'); renderMenuList(); }
+function renderMenuList(){
+  const box=document.getElementById('menuList');
+  if(box.classList.contains('hidden')) return;
+  box.innerHTML='';
+  state.dishes.forEach((dish,i)=>{
+    const b=document.createElement('button');
+    if(i===state.idx) b.classList.add('cur');
+    b.innerHTML='<b>'+(i+1)+'</b><span>'+dishDisp(dish).name+'</span>'+(scored(i)?'<span class="ok">✓</span>':'');
+    b.onclick=()=>{ jumpTo(i); };
+    box.appendChild(b);
+  });
+}
+/* ---- 우측 사이드바 (번호+요리명, 와이드 화면) ---- */
+function renderSidebar(){
+  const box=document.getElementById('sbList'); if(!box) return;
+  box.innerHTML='';
+  state.dishes.forEach((dish,i)=>{
+    const b=document.createElement('button');
+    b.className='sb-item'+(i===state.idx?' cur':'');
+    b.innerHTML='<b>'+(i+1)+'</b><span>'+dishDisp(dish).name+'</span>'+(scored(i)?'<span class="ok">✓</span>':'');
+    b.onclick=()=>jumpTo(i);
+    box.appendChild(b);
+  });
+  const cur=box.children[state.idx];
+  if(cur) cur.scrollIntoView({block:'nearest'});
+}
+
+/* ---- 저장/이동 ---- */
 function saveCurrent(){
-  const t=+document.getElementById('sTaste').dataset.val||0;
-  const v=+document.getElementById('sVisual').dataset.val||0;
-  const r=document.getElementById('sReorder').dataset.val||'';
-  if(!t||!v||!r) return false;
+  const t2=+document.getElementById('sTaste').dataset.val||null;
+  const v=+document.getElementById('sVisual').dataset.val||null;
+  const r=document.getElementById('sReorder').dataset.val||null;
   let issues=chipVals(document.getElementById('sIssues'));
   const iOther=document.getElementById('sIssueOther').value.trim();
   if(iOther) issues.push('其他:'+iOther);
-  state.scores[state.idx]={ taste:t, visual:v, reorder:r, issues,
-    price:chipVals(document.getElementById('sPrice'))[0]||'',
+  let price=chipVals(document.getElementById('sPrice'))[0]||'';
+  const pOtherChip=document.getElementById('priceOtherChip').classList.contains('on');
+  const pOtherVal=document.getElementById('sPriceOther').value.trim();
+  if(pOtherChip && pOtherVal && +pOtherVal>0) price='¥'+(+pOtherVal);
+  state.scores[state.idx]={ taste:t2, visual:v, reorder:r, issues,
+    price,
     comment:document.getElementById('sComment').value.trim() };
   return true;
 }
 function nextDish(){
-  if(!saveCurrent()){ alert('请完成必填项：味道、颜值、是否再点'); return; }
+  saveCurrent();
   if(state.idx===state.dishes.length-1){ finish(); return; }
   state.idx++; renderDish();
 }
-function prevDish(){ const t=+document.getElementById('sTaste').dataset.val||0; if(t) saveCurrent();
-  state.idx--; renderDish(); }
+function prevDish(){
+  saveCurrent();
+  if(state.idx===0){
+    document.getElementById('footNav').classList.add('hidden');
+    state.btnMode='cont';
+    document.getElementById('startBtn').textContent=t('cont_btn');
+    show('profile');
+    return;
+  }
+  state.idx--; renderDish();
+}
 
 function finish(){
   show('result');
   document.getElementById('footNav').classList.add('hidden');
   const p=state.profile;
   let out=`【${state.session}】\n评分人: ${p.name} | ${p.gender} | ${p.age}\n菜系偏好: ${p.cuisine}\n外食: ${p.freq} | 人均: ${p.spend} RMB\n────────────\n`;
-  state.dishes.forEach((d,i)=>{
-    const s=state.scores[i];
-    out+=`${i+1}. ${d}\n   味${s.taste}/9 颜${s.visual}/9 再点:${s.reorder}`;
+  state.dishes.forEach((dish,i)=>{
+    const s=state.scores[i]||{taste:null,visual:null,reorder:null,issues:[],price:'',comment:''};
+    out+=`${i+1}. ${dish.n}\n   味${s.taste||'未评'}/9 颜${s.visual||'未评'}/9 再点:${s.reorder||'未评'}`;
     if(s.price) out+=` 价:${s.price}`;
     if(s.issues.length) out+=`\n   ⚠ ${s.issues.join('、')}`;
     if(s.comment) out+=`\n   💬 ${s.comment}`;
@@ -458,8 +721,9 @@ function fallbackCopy(txt){
   const ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta);
   ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast();
 }
-function showToast(){ const t=document.getElementById('toast');
-  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1600); }
+function showToast(){ const el=document.getElementById('toast');
+  el.textContent=t('toast_copied');
+  el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1600); }
 </script>
 </body>
 </html>
